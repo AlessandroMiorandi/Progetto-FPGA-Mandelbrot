@@ -9,10 +9,7 @@ module mandelbrot_step #(parameter W = 24) (x, y, c_re, c_im, x_next, y_next, es
     output wire signed [W-1:0] y_next;
     output escape;
 	 
-    // Q2.(W-2): due bit interi, incluso il segno.
-    localparam F  = W - 2;
-    localparam EW = W + 2;
-
+	 
     // Prodotti a piena precisione.
     wire signed [2*W-1:0] xx_full = x * x;
     wire signed [2*W-1:0] yy_full = y * y;
