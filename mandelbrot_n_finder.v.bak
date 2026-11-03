@@ -1,0 +1,11 @@
+
+module  #(parameter W = 24) (x, y, c_re, c_im, x_next, y_next, escape);
+	 input  wire signed [W-1:0] x;
+    input  wire signed [W-1:0] y;
+    input  wire signed [W-1:0] c_re;
+    input  wire signed [W-1:0] c_im;
+
+    output wire signed [W-1:0] x_next;
+    output wire signed [W-1:0] y_next;
+    output escape;
+	 
