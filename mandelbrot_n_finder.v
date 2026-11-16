@@ -3,15 +3,15 @@ module mandelbrot_n_finder #(parameter W = 24, parameter W_CONT = 8) (c_re, c_im
    input	wire signed [W-1:0] c_re;
    input	wire signed [W-1:0] c_im;
 	input	[W_CONT-1:0] n_max;				// Massimo numero di iterazioni
-	input	clk, reset,
+	input	clk, reset;
 	input	start;
 
    output reg stop;
 	output reg [W_CONT-1:0] n;
 	 
-	reg 	escape;										// Flag di raggiungimento di |z| >= 2
+	wire	escape;										// Flag di raggiungimento di |z| >= 2
 	reg 	[W-1:0] x_corr, y_corr;					// Coordinate punto z[n] in ingresso al moltiplicatore
-	reg 	[W-1:0] x_next, y_next;					//	Coordinate punto z[n+1] in uscita dal moltiplicatore
+	wire	[W-1:0] x_next, y_next;					//	Coordinate punto z[n+1] in uscita dal moltiplicatore
 	reg 	[W-1:0] x_succ, y_succ;					// Coordinate punto z[n+1] in ingresso ad un FF davanti al moltiplicatore
 	// Contatori corrente e aggiornaton n° iterazioni
 	reg	[W_CONT-1:0] contatore_corr, contatore_succ;
@@ -19,7 +19,7 @@ module mandelbrot_n_finder #(parameter W = 24, parameter W_CONT = 8) (c_re, c_im
 	reg	waiting_corr, waiting_succ;
 	
 
-	mandelbrot_step #(.W(W)) next_step (.x(x_corr), .y(y_corr), .c_re(c_re), .c_im(c_im), .x_next(x_next), y_next(y_next), .escape(escape));
+	mandelbrot_step #(.W(W)) next_step (.x(x_corr), .y(y_corr), .c_re(c_re), .c_im(c_im), .x_next(x_next), .y_next(y_next), .escape(escape));
 	 
 	// Aggiornamento dello stato della macchina
 	always @ (posedge clk, posedge reset)

@@ -28,8 +28,7 @@ module mandelbrot_step #(parameter W = 24) (x, y, c_re, c_im, x_next, y_next, es
     wire signed [W+1:0] y_ext;
 	 
 	 // Variabile per il calcolo della condizione di escape
-    wire [W+1:0] zz;
-	 
+    wire [W+1:0] zz;	 
 	 
 	 // Svolgimento delle operazioni
     // Prodotti a piena precisione.
@@ -47,12 +46,12 @@ module mandelbrot_step #(parameter W = 24) (x, y, c_re, c_im, x_next, y_next, es
     assign	c_im_ext = {c_im[W-1], c_im[W-1], c_im};
 
     // Risultato non ancora troncato.
-    wire signed [W+1:0] x_ext = xx - yy + c_re_ext;
-    wire signed [W+1:0] y_ext = (xy <<< 1) + c_im_ext;
+	 assign x_ext = xx - yy + c_re_ext;
+    assign y_ext = (xy <<< 1) + c_im_ext;
 	
     // Calcolo la condizione di escape (|z|^2 >= 4) basato sui valori in ingresso.
 	 // Set della flag sulla condione di escape.
-    wire [W+1:0] zz = xx + yy;
+    assign zz = xx + yy;
     assign escape = ((zz >>> W) !=0);
 
     // Le uscite sono troncate al formato W bit.
