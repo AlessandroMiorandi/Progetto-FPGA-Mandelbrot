@@ -1,5 +1,5 @@
 
-module mandelbrot_n_finder #(parameter W = 24, parameter W_CONT = 8) (c_re, c_im, n_max, clk, reset, start, stop, n);
+module mandelbrot_n_finder #(parameter W = 27, parameter W_CONT = 8) (c_re, c_im, n_max, clk, reset, start, stop, n);
    input	wire signed [W-1:0] c_re;
    input	wire signed [W-1:0] c_im;
 	input	[W_CONT-1:0] n_max;				// Massimo numero di iterazioni

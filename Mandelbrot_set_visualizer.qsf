@@ -39,7 +39,7 @@
 
 set_global_assignment -name FAMILY "MAX 10"
 set_global_assignment -name DEVICE 10M50DAF484C7G
-set_global_assignment -name TOP_LEVEL_ENTITY mandelbrot_n_finder
+set_global_assignment -name TOP_LEVEL_ENTITY Top_entity_test
 set_global_assignment -name ORIGINAL_QUARTUS_VERSION 25.1STD.0
 set_global_assignment -name PROJECT_CREATION_TIME_DATE "16:44:28  OCTOBER 26, 2026"
 set_global_assignment -name LAST_QUARTUS_VERSION "25.1std.0 Lite Edition"
@@ -59,7 +59,29 @@ set_global_assignment -name VERILOG_FILE mandelbrot_n_finder.v
 set_global_assignment -name VERILOG_FILE mandelbrot_step.v
 set_global_assignment -name POWER_PRESET_COOLING_SOLUTION "23 MM HEAT SINK WITH 200 LFPM AIRFLOW"
 set_global_assignment -name POWER_BOARD_THERMAL_MODEL "NONE (CONSERVATIVE)"
+set_global_assignment -name VERILOG_FILE Top_entity_test.v
 set_global_assignment -name PARTITION_NETLIST_TYPE SOURCE -section_id Top
 set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_ROUTING -section_id Top
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
+set_instance_assignment -name VIRTUAL_PIN ON -to clk
+set_instance_assignment -name VIRTUAL_PIN ON -to reset
+set_instance_assignment -name VIRTUAL_PIN ON -to start
+set_instance_assignment -name VIRTUAL_PIN ON -to c_im_bus
+set_instance_assignment -name VIRTUAL_PIN ON -to c_re_bus
+set_instance_assignment -name VIRTUAL_PIN ON -to n
+set_instance_assignment -name VIRTUAL_PIN ON -to n_max
+set_instance_assignment -name VIRTUAL_PIN ON -to stop_bus
+set_instance_assignment -name VIRTUAL_PIN ON -to "mandelbrot_n_finder:GEN_MANDELBROT[0].finder_inst"
+set_instance_assignment -name VIRTUAL_PIN ON -to "mandelbrot_n_finder:GEN_MANDELBROT[1].finder_inst"
+set_instance_assignment -name VIRTUAL_PIN ON -to "mandelbrot_n_finder:GEN_MANDELBROT[2].finder_inst"
+set_instance_assignment -name VIRTUAL_PIN ON -to "mandelbrot_n_finder:GEN_MANDELBROT[3].finder_inst"
+set_instance_assignment -name VIRTUAL_PIN ON -to "mandelbrot_n_finder:GEN_MANDELBROT[4].finder_inst"
+set_instance_assignment -name VIRTUAL_PIN ON -to "mandelbrot_n_finder:GEN_MANDELBROT[5].finder_inst"
+set_instance_assignment -name VIRTUAL_PIN ON -to "mandelbrot_n_finder:GEN_MANDELBROT[6].finder_inst"
+set_instance_assignment -name VIRTUAL_PIN ON -to "mandelbrot_n_finder:GEN_MANDELBROT[7].finder_inst"
+set_instance_assignment -name VIRTUAL_PIN ON -to "mandelbrot_n_finder:GEN_MANDELBROT[8].finder_inst"
+set_instance_assignment -name VIRTUAL_PIN ON -to "mandelbrot_n_finder:GEN_MANDELBROT[9].finder_inst"
+set_instance_assignment -name VIRTUAL_PIN ON -to "mandelbrot_n_finder:GEN_MANDELBROT[10].finder_inst"
+set_instance_assignment -name VIRTUAL_PIN ON -to "mandelbrot_n_finder:GEN_MANDELBROT[11].finder_inst"
+set_instance_assignment -name VIRTUAL_PIN ON -to "mandelbrot_n_finder:GEN_MANDELBROT[12].finder_inst"
 set_instance_assignment -name PARTITION_HIERARCHY root_partition -to | -section_id Top

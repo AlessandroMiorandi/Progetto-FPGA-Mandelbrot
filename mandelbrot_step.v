@@ -1,5 +1,5 @@
 
-module mandelbrot_step #(parameter W = 24) (x, y, c_re, c_im, x_next, y_next, escape);
+module mandelbrot_step #(parameter W = 27) (x, y, c_re, c_im, x_next, y_next, escape);
 	 input  wire signed [W-1:0] x;
     input  wire signed [W-1:0] y;
     input  wire signed [W-1:0] c_re;
