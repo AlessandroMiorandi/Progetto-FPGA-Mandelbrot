@@ -1,0 +1,23 @@
+
+module multiplier18 
+(
+    input  wire        clk,
+    input  wire [17:0] A,
+    input  wire [17:0] B,
+    output wire [35:0] P
+);
+
+       reg [17:0] A_reg, B_reg;
+       reg [35:0] P_comb;
+       reg [35:0] P_reg;
+
+       always @(posedge clk) begin
+           A_reg <= A;
+           B_reg <= B;
+           P_comb <= A_reg * B_reg;
+           P_reg <= P_comb;
+       end
+
+       assign P = P_reg;
+
+endmodule

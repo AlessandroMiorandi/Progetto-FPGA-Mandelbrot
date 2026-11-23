@@ -1,0 +1,272 @@
+
+module mandelbrot_pipeline #(
+    parameter W = 36,
+    parameter W_CONT = 8,
+    parameter N_CTX = 3,
+    parameter ID_W = 2
+)(
+    input wire clk,
+    input wire reset,
+
+    // Ingresso di una nuova orbita
+    input wire in_valid,
+    output wire in_ready,
+    input wire [ID_W-1:0] in_id,
+    input wire signed [W-1:0] in_cre,
+    input wire signed [W-1:0] in_cim,
+    input wire [W_CONT-1:0] in_nmax,
+
+    // Risultato
+    output reg done,
+    output reg [ID_W-1:0] out_id,
+    output reg [W_CONT-1:0] out_n
+);
+
+    // ------------------------------------------------
+    // CONTEXT MEMORY
+    // ------------------------------------------------
+
+    reg signed [W-1:0] x_ctx [0:N_CTX-1];
+    reg signed [W-1:0] y_ctx [0:N_CTX-1];
+
+    reg signed [W-1:0] cre_ctx [0:N_CTX-1];
+    reg signed [W-1:0] cim_ctx [0:N_CTX-1];
+
+    reg [W_CONT-1:0] count_ctx [0:N_CTX-1];
+    reg [W_CONT-1:0] nmax_ctx [0:N_CTX-1];
+
+    reg [ID_W-1:0] id_ctx [0:N_CTX-1];
+
+    reg [N_CTX-1:0] active;
+
+    // ------------------------------------------------
+    // INPUT ALLOCATION
+    // ------------------------------------------------
+
+    reg [ID_W-1:0] free_slot;
+    reg free_found;
+
+    integer i;
+
+    always @(*) begin
+        free_found = 1'b0;
+        free_slot = 0;
+
+        for (integer k = 0; k < N_CTX; k = k + 1) begin
+            if (!active[k] && !free_found) begin
+                free_found = 1'b1;
+                free_slot = k;
+            end
+        end
+    end
+
+    assign in_ready = free_found;
+
+    // ------------------------------------------------
+    // ROUND ROBIN SCHEDULER
+    // ------------------------------------------------
+
+    reg [ID_W-1:0] rr;
+
+    wire issue_valid = active[rr];
+
+    wire signed [2*W-1:0] mult_xx =
+        x_ctx[rr] * x_ctx[rr];
+
+    wire signed [2*W-1:0] mult_yy =
+        y_ctx[rr] * y_ctx[rr];
+
+    wire signed [2*W-1:0] mult_xy =
+        x_ctx[rr] * y_ctx[rr];
+
+    // ------------------------------------------------
+    // PIPELINE STAGE 1
+    // Moltiplicazioni registrate
+    // ------------------------------------------------
+
+    reg v1;
+
+    reg signed [2*W-1:0] pxx1;
+    reg signed [2*W-1:0] pyy1;
+    reg signed [2*W-1:0] pxy1;
+
+    reg signed [W-1:0] cre1;
+    reg signed [W-1:0] cim1;
+
+    reg [W_CONT-1:0] count1;
+    reg [W_CONT-1:0] nmax1;
+
+    reg [ID_W-1:0] slot1;
+    reg [ID_W-1:0] id1;
+
+    // ------------------------------------------------
+    // PIPELINE STAGE 2
+    // Somme e controllo
+    // ------------------------------------------------
+
+    reg v2;
+
+    reg signed [W-1:0] x2;
+    reg signed [W-1:0] y2;
+
+    reg [W_CONT-1:0] count2;
+
+    reg [ID_W-1:0] slot2;
+    reg [ID_W-1:0] id2;
+
+    reg done2;
+
+    // Valori intermedi dello stage 2
+    wire signed [W+1:0] xx2 =
+        $signed(pxx1) >>> (W-2);
+
+    wire signed [W+1:0] yy2 =
+        $signed(pyy1) >>> (W-2);
+
+    wire signed [W+1:0] xy2 =
+        $signed(pxy1) >>> (W-2);
+
+    wire signed [W+1:0] cre_ext =
+        {{2{cre1[W-1]}}, cre1};
+
+    wire signed [W+1:0] cim_ext =
+        {{2{cim1[W-1]}}, cim1};
+
+    wire signed [W+1:0] x_calc =
+        xx2 - yy2 + cre_ext;
+
+    wire signed [W+1:0] y_calc =
+        (xy2 <<< 1) + cim_ext;
+
+    wire signed [W+1:0] zz2 =
+        xx2 + yy2;
+
+    wire escape2 =
+        (zz2[W+1:W] != 0);
+
+    wire [W_CONT-1:0] count_next =
+        count1 + 1'b1;
+
+    // ------------------------------------------------
+    // PIPELINE CONTROL
+    // ------------------------------------------------
+
+    always @(posedge clk or posedge reset) begin
+
+        if (reset) begin
+
+            active <= 0;
+
+            rr <= 0;
+
+            v1 <= 0;
+            v2 <= 0;
+
+            done <= 0;
+            out_id <= 0;
+            out_n <= 0;
+
+        end else begin
+
+            done <= 0;
+
+            // ----------------------------------------
+            // Caricamento nuovo contesto
+            // ----------------------------------------
+
+            if (in_valid && in_ready) begin
+
+                x_ctx[free_slot] <= 0;
+                y_ctx[free_slot] <= 0;
+
+                cre_ctx[free_slot] <= in_cre;
+                cim_ctx[free_slot] <= in_cim;
+
+                count_ctx[free_slot] <= 0;
+                nmax_ctx[free_slot] <= in_nmax;
+
+                id_ctx[free_slot] <= in_id;
+
+                active[free_slot] <= 1;
+
+            end
+
+            // ----------------------------------------
+            // STAGE 1: acquisizione moltiplicazioni
+            // ----------------------------------------
+
+            v1 <= issue_valid;
+
+            if (issue_valid) begin
+
+                pxx1 <= mult_xx;
+                pyy1 <= mult_yy;
+                pxy1 <= mult_xy;
+
+                cre1 <= cre_ctx[rr];
+                cim1 <= cim_ctx[rr];
+
+                count1 <= count_ctx[rr];
+                nmax1 <= nmax_ctx[rr];
+
+                slot1 <= rr;
+                id1 <= id_ctx[rr];
+
+            end
+
+            // Scheduler round robin
+            if (rr == N_CTX-1)
+                rr <= 0;
+            else
+                rr <= rr + 1'b1;
+
+            // ----------------------------------------
+            // STAGE 2: somme e controllo
+            // ----------------------------------------
+
+            v2 <= v1;
+
+            if (v1) begin
+
+                x2 <= x_calc[W-1:0];
+                y2 <= y_calc[W-1:0];
+
+                count2 <= count_next;
+
+                slot2 <= slot1;
+                id2 <= id1;
+
+                done2 <= escape2 ||
+                         (count_next >= nmax1);
+
+            end
+
+            // ----------------------------------------
+            // WRITEBACK
+            // ----------------------------------------
+
+            if (v2) begin
+
+                if (done2) begin
+
+                    active[slot2] <= 0;
+
+                    done <= 1;
+                    out_id <= id2;
+                    out_n <= count2;
+
+                end else begin
+
+                    x_ctx[slot2] <= x2;
+                    y_ctx[slot2] <= y2;
+
+                    count_ctx[slot2] <= count2;
+
+                end
+
+            end
+
+        end
+    end
+
+endmodule

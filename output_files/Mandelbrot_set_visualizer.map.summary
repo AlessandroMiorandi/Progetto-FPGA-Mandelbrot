@@ -1,14 +1,14 @@
-Analysis & Synthesis Status : Successful - Tue Nov 17 13:11:25 2026
+Analysis & Synthesis Status : Successful - Sun Nov 22 18:34:17 2026
 Quartus Prime Version : 25.1std.0 Build 1129 10/21/2025 SC Lite Edition
 Revision Name : Mandelbrot_set_visualizer
 Top-level Entity Name : Top_entity_test
 Family : MAX 10
-Total logic elements : 45,655
-    Total combinational functions : 45,655
-    Dedicated logic registers : 1,890
-Total registers : 1890
-Total pins : 240
-Total virtual pins : 1,661
+Total logic elements : 39,927
+    Total combinational functions : 34,311
+    Dedicated logic registers : 24,000
+Total registers : 24000
+Total pins : 4,419
+Total virtual pins : 0
 Total memory bits : 0
 Embedded Multiplier 9-bit elements : 288
 Total PLLs : 0
