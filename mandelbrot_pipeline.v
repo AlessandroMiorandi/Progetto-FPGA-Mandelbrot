@@ -38,6 +38,8 @@ module mandelbrot_pipeline (clk, reset, c_re, c_im, n_max, start, done, n);
 	wire signed [37:0] R1_ext;         //C2, 3.35
 	wire signed [37:0] abs_ext;        //C2, 3.35
 	wire        [37:0] R2_temp;        //    3.35
+	wire        [17:0] in_mult_a;
+	wire        [17:0] in_mult_b;
 	
 	
 
@@ -48,6 +50,8 @@ module mandelbrot_pipeline (clk, reset, c_re, c_im, n_max, start, done, n);
 	assign R1_ext = (st_q==S4) ? {R1_2_q[36], R1_2_q[36:0]} : {R1_1_q[36], R1_1_q[36:0]}; 
 	assign abs_ext = (R1_ext[37]==1'b0) ? R1_ext : (-R1_ext);
 	assign R2_temp = R2_q >> 2;
+	assign in_mult_a = (st_q==S1||st_q==S4||st_q==S7) ? R2_q[35:18] : R2_q[17:0];
+	assign in_mult_b = (st_q==S2||st_q==S5||st_q==S8||st_q==SA2) ? R2_q[17:0] : R2_q[35:18];
 	
 	
 	
@@ -66,7 +70,7 @@ module mandelbrot_pipeline (clk, reset, c_re, c_im, n_max, start, done, n);
 		
 		R2_d=R2_q;
 		
-		R3_1_d=R3_1_q;
+		R3_1_d=in_mult_a*in_mult_b;
 		R3_2_d=R3_2_q;
 					
 		R4_1_d=R4_1_q;
@@ -92,7 +96,6 @@ module mandelbrot_pipeline (clk, reset, c_re, c_im, n_max, start, done, n);
 				
 				R2_d=abs_ext[35:0];
 				
-				R3_1_d=R2_q[35:18]*R2_q[35:18];
 				R3_2_d=(R3_2_q[18]==1'b1) ? R3_1_q+(R3_2_q>>19)+1 : R3_1_q+(R3_2_q>>19);
 				
 				R6_d = (flag_of_q==1'b1) ? (R2_temp[36:0])-R5_2_q : -R5_2_q;
@@ -101,10 +104,9 @@ module mandelbrot_pipeline (clk, reset, c_re, c_im, n_max, start, done, n);
 			S2: begin			// Calcolo (|x+y|(-2))^2 e -(x^2+y^2)+c_im (+4(|x+y|+2))
 				st_d = S3;
 				
-				R3_1_d=R2_q[17:0]*R2_q[17:0];
 				R3_2_d=37'b0;
 				
-				R4_1_d=(R3_2_q[15]==1'b1) ? R3_1_q+(R3_2_q>>16)+1 : R3_1_q+(R3_2_q>>16);
+				R4_1_d=(R3_2_q[16]==1'b1) ? R3_1_q+(R3_2_q>>17)+1 : R3_1_q+(R3_2_q>>17);
 				
 				R7_d = {c_im_q[36], c_im_q[36:0]} + R6_q;
 			end
@@ -117,8 +119,7 @@ module mandelbrot_pipeline (clk, reset, c_re, c_im, n_max, start, done, n);
 				   st_d = S4;
 				
 				R1_2_d=y_next[36:0];
-				
-				R3_1_d=R2_q[35:18]*R2_q[17:0];
+
 				R3_2_d=R3_1_q;
 			end              
 			
@@ -131,8 +132,7 @@ module mandelbrot_pipeline (clk, reset, c_re, c_im, n_max, start, done, n);
 				R1_1_d=R1_1_q+R1_2_q;
 				
 				R2_d=abs_ext[35:0];
-				
-				R3_1_d=R2_q[35:18]*R2_q[35:18];
+
 				R3_2_d=(R3_2_q[18]==1'b1) ? R3_1_q+(R3_2_q>>19)+1 : R3_1_q+(R3_2_q>>19);
 			end
 			
@@ -149,16 +149,14 @@ module mandelbrot_pipeline (clk, reset, c_re, c_im, n_max, start, done, n);
 				end
 				R1_1_d[35:0]=R1_1_q[35:0];
 				
-				R3_1_d=R2_q[17:0]*R2_q[17:0];
 				R3_2_d=37'b0;
 				
-				R4_1_d=(R3_2_q[15]==1'b1) ? R3_1_q+(R3_2_q>>16)+1 : R3_1_q+(R3_2_q>>16);
+				R4_1_d=(R3_2_q[16]==1'b1) ? R3_1_q+(R3_2_q>>17)+1 : R3_1_q+(R3_2_q>>17);
 			end
 			
 			S6: begin        // Calcolo x^2+c_re
 			   st_d = S7;
-				
-				R3_1_d=R2_q[35:18]*R2_q[17:0];
+
 				R3_2_d=R3_1_q;
 				
 				R5_1_d={c_re_q[36], c_re_q[36:0]}-{1'b0, R4_1_q};
@@ -168,18 +166,16 @@ module mandelbrot_pipeline (clk, reset, c_re, c_im, n_max, start, done, n);
 			   st_d = S8;
 				
 				R2_d=abs_ext[35:0];
-				
-				R3_1_d=R2_q[35:18]*R2_q[35:18];
+
 				R3_2_d=(R3_2_q[18]==1'b1) ? R3_1_q+(R3_2_q>>19)+1 : R3_1_q+(R3_2_q>>19);
 			end
 			
 			S8: begin        // Calcolo y^2
 			   st_d = S9;
 
-				R3_1_d=R2_q[17:0]*R2_q[17:0];
 				R3_2_d=37'b0;
 				
-				R4_2_d=(R3_2_q[15]==1'b1) ? R3_1_q+(R3_2_q>>16)+1 : R3_1_q+(R3_2_q>>16);
+				R4_2_d=(R3_2_q[16]==1'b1) ? R3_1_q+(R3_2_q>>17)+1 : R3_1_q+(R3_2_q>>17);
 			end
 			
 			S9: begin         // Calcolo x_next=x^2+c_re-y^2
@@ -199,7 +195,6 @@ module mandelbrot_pipeline (clk, reset, c_re, c_im, n_max, start, done, n);
 				
 				R1_1_d={1'b0, x_next[36:0]};
 
-				R3_1_d=R2_q[35:18]*R2_q[17:0];
 				R3_2_d=R3_1_q;
 			
 				R5_2_d=z2_next[36:0];
@@ -219,7 +214,6 @@ module mandelbrot_pipeline (clk, reset, c_re, c_im, n_max, start, done, n);
 					st_d = idle;	
 				end 
 				
-				R3_1_d=R3_1_q;
 				R3_2_d=R3_2_q;
 			end
 			
@@ -238,14 +232,12 @@ module mandelbrot_pipeline (clk, reset, c_re, c_im, n_max, start, done, n);
 			SA2: begin                  // Inizio a calcolare x^2
 				st_d = SA3;
 
-				R3_1_d=R2_q[17:0]*R2_q[17:0];
 				R3_2_d=37'b0;
 			end
 			
 			SA3: begin                  // Continuo a calcolare x^2
 				st_d = S4;
-				
-				R3_1_d=R2_q[35:18]*R2_q[17:0];
+
 				R3_2_d=R3_1_q;
 			end
 			

@@ -1,7 +1,7 @@
 
 
 
-module Top_entity_test #(parameter N_INST = 48) (clk, reset, start_bus, n_max, c_re_bus, c_im_bus, done_bus, n_bus);
+module Top_entity_test #(parameter N_INST = 144) (clk, reset, start_bus, n_max, c_re_bus, c_im_bus, done_bus, n_bus);
     input wire clk;
     input wire reset;
     input wire [N_INST-1:0] start_bus;
